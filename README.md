@@ -26,7 +26,7 @@ ollama pull nomic-embed-text
 python scripts/demo.py
 ```
 
-On Linux use `python3 scripts/demo.py` if `python` is not installed. `make demo` is equivalent when make is installed. Downloads and local inference can be slow; keep the terminal open. The script starts Postgres, creates a virtual environment, installs dependencies, migrates, seeds both KBs with real embeddings, processes both inboxes, exports decisions and lists pending approvals. It never approves messages automatically. Repeated demo runs reuse seeded data and do not create duplicate tickets or decisions.
+On Linux use `python3 scripts/demo.py` if `python` is not installed. `make demo` is equivalent when make is installed. Run the demo on its own; wait for it to finish before starting evaluation or additional workers on an 8 GB laptop. Downloads and local inference can be slow; keep the terminal open. The script starts Postgres, creates a virtual environment, installs dependencies, migrates, seeds both KBs with real embeddings, processes both inboxes, exports decisions and lists pending approvals. It never approves messages automatically. Repeated demo runs reuse seeded data and do not create duplicate tickets or decisions. Each stage prints its elapsed time, and the completed run writes `tmp/demo-timing.json`.
 
 The brief's standalone preflight `relay-pg` container is reused when already running on port 5432. Otherwise Docker Compose starts the database. If another application owns that port, choose PG_PORT and matching DATABASE_URL/ADMIN_DATABASE_URL values; `.env.example` lists all options. No API key is required. Credentials in the example are local development credentials, and the database port is bound only to loopback.
 
@@ -62,13 +62,15 @@ Test laptop: HP 14q-cs0xxx, Intel Core i3-8130U, 7.9 GB RAM, Windows with WSL2 a
 
 Default runtime models: qwen2.5:1.5b for both triage and drafting, nomic-embed-text for 768-dimensional embeddings. An initial llama3.2:3b drafting attempt caused substantial memory pressure; the brief permits using 1.5B for additional steps. Models are retained for five minutes by default to avoid repeated loads; set MODEL_KEEP_ALIVE=0 for a lower-memory trade-off.
 
-Measured demo timing and validation evidence are recorded in docs/VALIDATION.md. Three real evaluation runs produced 88.9% action accuracy, 76.4% category accuracy, 100% injection recall, 5 false positives among 66 benign observations, and 95.8% action stability. Two observations failed with database connection timeouts under concurrent load. See docs/EVAL.md for every per-ticket difference. Evaluation uses three runs under the brief's slow-laptop allowance; these visible-set results do not establish unseen-ticket accuracy.
+The isolated full clean-clone demo completed in **692.915 seconds (11 minutes 33 seconds)**, including a new virtual environment, dependency installation, an empty database, embeddings and all 24 tickets. Models and the Docker image were already downloaded per preflight, and pip used cached packages. See docs/PERFORMANCE.md and benchmarks/clean-clone-timing.json for the generated evidence. The earlier 21m 41s run overlapped evaluation and another worker; it remains in docs/VALIDATION.md as a historical measurement. Avoid concurrent jobs on this 8 GB laptop; timing on other hardware or uncached downloads can differ.
+
+Three real evaluation runs produced 88.9% action accuracy, 76.4% category accuracy, 100% injection recall, 5 false positives among 66 benign observations, and 95.8% action stability. Two observations failed with database connection timeouts under concurrent load. See docs/EVAL.md for every per-ticket difference. Evaluation uses three runs under the brief's slow-laptop allowance; these visible-set results do not establish unseen-ticket accuracy. The isolated performance check did not change agent routing or evaluation results.
 
 ## Requirement status
 
 | ID | Status | Evidence or limitation |
 |---|---|---|
-| C1 | partial | One-command clean-clone demo completed, but took 21m 41s under concurrent load on this 8 GB laptop, exceeding the brief's 15-minute runability threshold. |
+| C1 | done | One-command isolated clean-clone demo: 11m 33s on the tested 8 GB laptop; all 24 tickets processed. Conditions and raw timing in PERFORMANCE.md and benchmarks/. |
 | C2 | done | Typed contracts, narrow agent contexts, one repair then classified failure. Final factual wording is deliberately extractive. |
 | C3 | done | pgvector cosine retrieval through tenant-bound app sessions. |
 | C4 | partial | Required deterministic checks implemented and tested; medical/identifier patterns and content fingerprints are finite, not universal detection. |

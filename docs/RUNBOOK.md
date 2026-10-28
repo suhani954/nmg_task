@@ -1,5 +1,9 @@
 # Runbook
 
+## Demo exceeds the timing target
+
+Run `python scripts/demo.py` alone and wait before starting evaluation or another worker on the 8 GB test laptop. Simultaneous inference caused memory/CPU contention in the earlier measurement. The isolated clean-clone test completed in 11m 33s, versus 21m 41s under concurrent load. The bootstrap prints each stage and writes `tmp/demo-timing.json`; use it to distinguish downloads, database startup, embeddings and ticket inference. Preflight must already have downloaded models, as the brief allows. Do not change safety or approval rules to meet a timer. Hardware and uncached network downloads can still affect results.
+
 ## Ollama unavailable
 
 Start Ollama and check `ollama list`. Verify `OLLAMA_URL`, normally `http://localhost:11434`. Run `python -m relay worker` after restoring service. Transient model failures retry with backoff; exhausted attempts create a case. Inspect `model_calls.error` and `cases` without exposing raw ticket bodies. A dead-letter ticket needs deliberate operator remediation, not repeated inbox ingestion.

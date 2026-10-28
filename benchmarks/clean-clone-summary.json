@@ -1,0 +1,19 @@
+{
+  "tested_commit": "4d05d27211f95daf1c5a0058a6ff71b08e6b2a24",
+  "total_seconds": 692.915,
+  "decisions": 24,
+  "statuses": {
+    "pending_approval": 17,
+    "escalated": 7
+  },
+  "automatic_approvals": 0,
+  "within_15_minutes": true,
+  "conditions": [
+    "new Git clone",
+    "new virtual environment",
+    "new empty Docker volume",
+    "models and Docker image already downloaded",
+    "pip package cache available",
+    "no simultaneous evaluation or other workers"
+  ]
+}

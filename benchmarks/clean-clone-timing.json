@@ -1,0 +1,48 @@
+{
+  "started_at": "2026-10-28T09:44:29.788143+00:00",
+  "stages": [
+    {
+      "name": "database",
+      "seconds": 6.77,
+      "success": true
+    },
+    {
+      "name": "virtual_environment",
+      "seconds": 13.572,
+      "success": true
+    },
+    {
+      "name": "dependencies",
+      "seconds": 31.388,
+      "success": true
+    },
+    {
+      "name": "migrations",
+      "seconds": 2.591,
+      "success": true
+    },
+    {
+      "name": "embeddings",
+      "seconds": 46.045,
+      "success": true
+    },
+    {
+      "name": "inboxes",
+      "seconds": 588.906,
+      "success": true
+    },
+    {
+      "name": "approval_queue_northwind",
+      "seconds": 2.228,
+      "success": true
+    },
+    {
+      "name": "approval_queue_harbor",
+      "seconds": 1.173,
+      "success": true
+    }
+  ],
+  "success": true,
+  "finished_at": "2026-10-28T09:56:02.703020+00:00",
+  "total_seconds": 692.915
+}

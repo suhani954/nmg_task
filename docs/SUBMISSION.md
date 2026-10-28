@@ -4,7 +4,7 @@ The candidate records and submits the video personally. The application does not
 
 ## Screen recording
 
-Record 3 to 5 minutes, narrating in English or Hindi. Have Ollama and Docker running. Show the repository clone and the documented demo command. A cold first run can exceed the video length on this laptop: show the actual command and result, explain any waiting or cuts honestly, and state the measured duration from VALIDATION.md rather than implying instant processing.
+Record 3 to 5 minutes, narrating in English or Hindi. Have Ollama and Docker running. Show the repository clone and the documented demo command. A cold first run exceeds the video length on this laptop: show the actual command and result, explain any waiting or cuts honestly, and state the isolated measured duration (11m 33s) from PERFORMANCE.md rather than implying instant processing. Run evaluation separately after the demo.
 
 Show a pending draft with `python -m relay show --tenant northwind NW-T02`. Read it before approving. Then run `python -m relay approve --tenant northwind NW-T02 --by Suhani` and show the outbox. Do not approve a ticket merely to satisfy a recording if the text is wrong; reject it instead and explain why.
 
