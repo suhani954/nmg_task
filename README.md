@@ -62,13 +62,13 @@ Test laptop: HP 14q-cs0xxx, Intel Core i3-8130U, 7.9 GB RAM, Windows with WSL2 a
 
 Default runtime models: qwen2.5:1.5b for both triage and drafting, nomic-embed-text for 768-dimensional embeddings. An initial llama3.2:3b drafting attempt caused substantial memory pressure; the brief permits using 1.5B for additional steps. Models are retained for five minutes by default to avoid repeated loads; set MODEL_KEEP_ALIVE=0 for a lower-memory trade-off.
 
-Measured demo timing and evaluation outcomes are recorded in docs/VALIDATION.md and docs/EVAL.md when their runs finish. Do not infer a passing result from this paragraph. Initial implementation tests passed; final validation evidence is recorded separately. Evaluation uses three runs under the brief's slow-laptop allowance.
+Measured demo timing and validation evidence are recorded in docs/VALIDATION.md. Three real evaluation runs produced 88.9% action accuracy, 76.4% category accuracy, 100% injection recall, 5 false positives among 66 benign observations, and 95.8% action stability. Two observations failed with database connection timeouts under concurrent load. See docs/EVAL.md for every per-ticket difference. Evaluation uses three runs under the brief's slow-laptop allowance; these visible-set results do not establish unseen-ticket accuracy.
 
 ## Requirement status
 
 | ID | Status | Evidence or limitation |
 |---|---|---|
-| C1 | partial | One-command bootstrap implemented; final clean-clone timing belongs in VALIDATION.md. |
+| C1 | partial | One-command clean-clone demo completed, but took 21m 41s under concurrent load on this 8 GB laptop, exceeding the brief's 15-minute runability threshold. |
 | C2 | done | Typed contracts, narrow agent contexts, one repair then classified failure. Final factual wording is deliberately extractive. |
 | C3 | done | pgvector cosine retrieval through tenant-bound app sessions. |
 | C4 | partial | Required deterministic checks implemented and tested; medical/identifier patterns and content fingerprints are finite, not universal detection. |
@@ -77,7 +77,7 @@ Measured demo timing and evaluation outcomes are recorded in docs/VALIDATION.md 
 | C7 | done | Typed JSONL decisions, arbitrary same-format input, composite idempotency and regenerated exports. |
 | E1 | done | Central gateway, actual token counts/latency, atomic budget reservations and held_budget. |
 | E2 | done | SKIP LOCKED leases, fencing tokens, bounded backoff/jitter, cases and operator recovery. |
-| E3 | partial | Real repeated evaluation is running; final artifacts and measurements determine completion. |
+| E3 | done | Three genuine runs committed; accuracy, injection recall/false positives, stability, usage, wall time and per-ticket errors in EVAL.md. |
 | E4 | done | No-Ollama test suite, including real Postgres isolation/approval tests and a fake deterministic model. Integration tests require Postgres. |
 | S1 | not done | No provider circuit breaker or chaos/fallback route. |
 | S2 | not done | CLI approval views only; no internal/client analytics reports or web UI. |

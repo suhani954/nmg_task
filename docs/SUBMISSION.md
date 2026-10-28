@@ -10,6 +10,8 @@ Show a pending draft with `python -m relay show --tenant northwind NW-T02`. Read
 
 Show one clinical escalation, one injection flag, and docs/EVAL.md including its errors. Explain that all models run locally and that no real email or financial transaction is performed.
 
+Use `python -m relay decision --tenant harbor HD-T03` for the clinical decision, `python -m relay cases --tenant harbor` for case ownership, and `python -m relay decision --tenant northwind NW-T07` for the injection decision. These commands enforce the same tenant-bound session as other application reads.
+
 ## Submission email contents
 
 - Repository: https://github.com/suhani954/nmg_task

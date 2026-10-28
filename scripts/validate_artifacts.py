@@ -54,7 +54,11 @@ def main():
     if args.fresh_seconds is None:
         lines.append('- Clean-clone full demo: not yet confirmed complete. A separate database and fresh virtual environment were started; do not claim a passing full demo.')
     else:
+        fresh_rows=list(load_jsonl('tmp/fresh-clone/out/decisions.jsonl'))
+        assert len(fresh_rows)==24
+        for row in fresh_rows: DecisionRecord.model_validate(row)
         lines.append(f'- Full clean-clone demo: completed successfully in {args.fresh_seconds:.2f} seconds, against a separate empty Postgres on port 5433. Dependencies/images may have been cached. Concurrent local runs increased timing.')
+        lines.append(f'- Clean-clone decision statuses: {dict(Counter(r["status"] for r in fresh_rows))}.')
     lines += ['', '## Submission tasks','',
               'The required screen recording and invitation-email submission are candidate actions. They have not been fabricated or sent by this program.',
               'See EVAL.md for real accuracy and per-ticket failures; a successful pipeline does not imply perfect labels.']

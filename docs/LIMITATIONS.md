@@ -3,6 +3,7 @@
 This is a local assessment prototype, not a production support service. Read EVAL.md for actual measured errors and VALIDATION.md for what was run successfully.
 
 - Small-model triage can misclassify an unsupported commercial request or a harmless acknowledgment. Retrieval similarity is not a complete semantic coverage check.
+- Final visible-set evaluation: 88.9% action accuracy and 76.4% category accuracy, with 5 benign injection false positives over 66 observations. Two run-two observations hit database connection timeouts while evaluation and clean-clone work ran concurrently. These failures remain in the committed results.
 - Factual replies are extractive. The drafter proposes text and evidence IDs, but a deterministic renderer composes the final facts from retrieved public policy. This avoids the invented requirements observed in an initial real draft, at the cost of sometimes including irrelevant policy sentences. Rejection feedback may not change wording much.
 - The deterministic checker catches known language, IDs and copied fragments. It is not a general semantic proof of grounding, clinical safety or absence of every possible private identifier. Canary detection handles the literal marker, not every encoded leak.
 - Clinical tickets create cases; no automatic clinical or emergency reply is produced. A human must contact the patient. This is a conservative but incomplete interpretation of the severe-symptom requirement.
