@@ -1,0 +1,25 @@
+{
+  "inference_runs": 3,
+  "additional_model_runs": 0,
+  "replay_seconds": 0.18918569999914325,
+  "changes": [
+    {
+      "run": 1,
+      "ticket": "HD-T09",
+      "from": "escalate",
+      "to": "draft_reply"
+    },
+    {
+      "run": 2,
+      "ticket": "HD-T09",
+      "from": "escalate",
+      "to": "draft_reply"
+    },
+    {
+      "run": 3,
+      "ticket": "HD-T09",
+      "from": "escalate",
+      "to": "draft_reply"
+    }
+  ]
+}

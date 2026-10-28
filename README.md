@@ -66,6 +66,8 @@ The isolated full clean-clone demo completed in **692.915 seconds (11 minutes 33
 
 See docs/EVAL.md for the latest generated metrics, per-ticket differences and evaluation provenance. The earlier three-run baseline (88.9% action accuracy, including two connection failures under concurrent load) is preserved unchanged in eval/baseline-adb61a5. The focused refinement adds semantic review of ambiguous injection flags, conservative unsupported-request routing, a narrow acknowledgment exception and a direct-public-coverage fallback. Every underlying evaluation run makes fresh triage calls; public retrieval context is reused, and any deterministic policy replay is explicitly disclosed. These visible-set results do not establish unseen-ticket accuracy.
 
+The latest visible-set report records 72/72 correct actions, 60/72 correct categories, injection recall 6/6, zero false positives over 66 benign observations, and stable actions for all 24 tickets. The pure coverage fallback was replayed over the three actual inference runs; raw pre-refinement files and replay changes are preserved. Category and priority mistakes remain in the per-ticket error table.
+
 The 11m 33s cold-clone benchmark predates this routing-only refinement; its exact tested commit is preserved in the benchmark summary. No dependencies or bootstrap path changed in the refinement. Additional semantic-review calls can add inference time; a full cold-clone timing was not repeated inside the 30-minute refinement window.
 
 ## Requirement status
