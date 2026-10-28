@@ -12,6 +12,8 @@ def main():
     for cmd in ['migrate','seed','worker','export']: sub.add_parser(cmd)
     run=sub.add_parser('run'); run.add_argument('--inbox',required=True,nargs='+')
     evaluate=sub.add_parser('eval'); evaluate.add_argument('--runs',type=int,default=5)
+    evaluate.add_argument('--output-dir',default='eval/runs')
+    evaluate.add_argument('--report',default='docs/EVAL.md')
     for command in ['list','show','approve','reject','resume','decision','cases']:
         p=sub.add_parser(command); p.add_argument('--tenant',required=True,choices=TENANTS)
         if command not in ('list','cases'): p.add_argument('ticket_id')
@@ -41,6 +43,6 @@ def main():
                 print(json.dumps(row,default=str,ensure_ascii=False))
     elif args.command=='eval':
         from .evaluation import evaluate
-        evaluate(args.runs)
+        evaluate(args.runs,output_dir=args.output_dir,report_path=args.report)
 
 if __name__=='__main__': main()

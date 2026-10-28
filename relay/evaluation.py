@@ -10,11 +10,11 @@ from .gateway import Gateway,BudgetExceeded
 from .agents import triage,route
 from .retrieval import retrieve
 
-def evaluate(runs=5,cfg=None):
+def evaluate(runs=5,cfg=None,output_dir='eval/runs',report_path='docs/EVAL.md'):
     if runs<1: raise ValueError('runs must be positive')
     tickets=[Ticket.model_validate(row) for tenant in ('northwind','harbor') for row in load_jsonl(f'data/{tenant}/tickets.jsonl')]
-    Path('eval/runs').mkdir(parents=True,exist_ok=True)
-    all_runs=[]; started=time.monotonic()
+    Path(output_dir).mkdir(parents=True,exist_ok=True)
+    all_runs=[]; started=time.monotonic(); retrieved={}
     for number in range(1,runs+1):
         identifier=run_id(); new_run(identifier,cfg); results=[]
         for ticket in tickets:
@@ -26,7 +26,12 @@ def evaluate(runs=5,cfg=None):
             category,priority,action,injection,refs,status='other','normal','escalate',False,[],'failed'
             try:
                 proposal=triage(ticket,gateway)
-                passages=retrieve(ticket,gateway,cfg)
+                # Only immutable public retrieval context is reused. Every run
+                # still makes a fresh triage model call and reruns routing.
+                key=(ticket.tenant,ticket.subject,ticket.body)
+                if key not in retrieved:
+                    retrieved[key]=retrieve(ticket,gateway,cfg)
+                passages=retrieved[key]
                 result=route(ticket,proposal,passages)
                 category,priority,action,injection=result.category,result.priority,result.action,result.injection_detected
                 refs=[passages[0].kb_id] if passages else []
@@ -39,7 +44,7 @@ def evaluate(runs=5,cfg=None):
                                   injection_detected=injection,kb_refs=refs,draft_reply=None,status=status,model=model,tokens_in=ti,tokens_out=to,latency_ms=int((time.monotonic()-t0)*1000)).model_dump()
             results.append(record)
             print(f'eval {number}/{runs} {ticket.id}: {action} {error or ""}',flush=True)
-        path=Path(f'eval/runs/run_{number}.jsonl')
+        path=Path(output_dir)/f'run_{number}.jsonl'
         path.write_text(''.join(json.dumps(row,ensure_ascii=False)+'\n' for row in results),encoding='utf-8')
         all_runs.append(results)
     # Measurement-only code below. Never imported by triage/routing.
@@ -51,7 +56,8 @@ def evaluate(runs=5,cfg=None):
     true_positives=sum(r['injection_detected'] and golden[r['ticket_id']]['injection'] for r in rows)
     false_positives=sum(r['injection_detected'] and not golden[r['ticket_id']]['injection'] for r in rows)
     stable=sum(len({run[i]['action'] for run in all_runs})==1 for i in range(len(tickets)))
-    lines=['# Evaluation','',f'Generated from {runs} real local-model runs over {len(tickets)} tickets. Temperature 0, seed 7. No drafting in evaluation.','',
+    lines=['# Evaluation','',f'Generated from {runs} real local-model runs over {len(tickets)} tickets. Temperature 0, seed 7. No drafting in evaluation.',
+           'Every run executes fresh triage inference and routing. Immutable public retrieval passages are reused after the first run; model responses and decisions are never cached. Usage records reflect calls actually made.','',
            f'- Action accuracy: {action_correct}/{n} ({action_correct/n:.1%})',f'- Category accuracy: {category_correct}/{n} ({category_correct/n:.1%})',
            f'- Injection recall: {true_positives}/{positives} ({true_positives/positives:.1%})',
            f'- Injection false positives: {false_positives}/{n-positives}',f'- Action stability: {stable}/{len(tickets)} ({stable/len(tickets):.1%})',
@@ -70,5 +76,5 @@ def evaluate(runs=5,cfg=None):
     lines += ['', '## Interpretation','',
               'These results cover the visible synthetic seed set, not unseen-ticket accuracy. Repeated local inference may vary between machines. Priority and KB retrieval are diagnostic, not folded into action accuracy.',
               'Next improvements: larger paraphrased injection and benign-control sets, evidence extraction for ambiguous missing details, and measured retrieval relevance. No result was manually edited.']
-    Path('docs').mkdir(exist_ok=True)
-    Path('docs/EVAL.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    Path(report_path).parent.mkdir(parents=True,exist_ok=True)
+    Path(report_path).write_text('\n'.join(lines)+'\n',encoding='utf-8')

@@ -34,6 +34,10 @@ class DraftResult(Contract):
     text: str = Field(max_length=2500)
     kb_refs: list[str]
 
+class InjectionReview(Contract):
+    is_injection: bool
+    evidence: str = Field(max_length=500)
+
 class DecisionRecord(Contract):
     ticket_id: str
     tenant: str
