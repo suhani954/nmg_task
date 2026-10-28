@@ -32,7 +32,8 @@ def decide(tenant,ticket_id,actor,approve,reason=None,cfg=None):
             conn.execute("UPDATE tickets SET status='approved' WHERE tenant=%s AND id=%s",(tenant,ticket_id))
         else:
             new_state='rejected'
-            if approval['revision']==0:
+            previous_rejections=conn.execute("SELECT count(*) AS n FROM approvals WHERE tenant=%s AND ticket_id=%s AND state='rejected'",(tenant,ticket_id)).fetchone()['n']
+            if previous_rejections==0:
                 conn.execute("UPDATE tickets SET status='queued',revision=revision+1 WHERE tenant=%s AND id=%s",(tenant,ticket_id))
                 conn.execute("UPDATE jobs SET state='ready',attempts=0,lease_token=NULL,available_at=now() WHERE tenant=%s AND ticket_id=%s",(tenant,ticket_id))
             else:

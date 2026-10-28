@@ -70,7 +70,7 @@ class Gateway:
         messages = [{'role':'system','content':system},{'role':'user','content':user}]
         for attempt in range(2):
             payload = {'model':model,'stream':False,'messages':messages,'format':contract.model_json_schema(),
-                       'options':{'temperature':0,'seed':self.cfg.seed,'num_predict':self.cfg.max_output},'keep_alive':0}
+                       'options':{'temperature':0,'seed':self.cfg.seed,'num_predict':self.cfg.max_output},'keep_alive':self.cfg.keep_alive}
             data = self._request(task,model,payload,json.dumps(messages,ensure_ascii=False))
             try:
                 return contract.model_validate_json(data['message']['content'])
@@ -82,7 +82,7 @@ class Gateway:
 
     def embed(self, text):
         data = self._request('embedding',self.cfg.embed_model,
-                             {'model':self.cfg.embed_model,'input':text,'truncate':False,'keep_alive':0},text)
+                             {'model':self.cfg.embed_model,'input':text,'truncate':False,'keep_alive':self.cfg.keep_alive},text)
         vector = data['embeddings'][0]
         if len(vector)!=768:
             raise ValueError('embedding_dimension_mismatch')

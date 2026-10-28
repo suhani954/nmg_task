@@ -50,7 +50,7 @@ def claim(tenant,cfg):
         return row
 
 def case(conn,ticket,priority,reason):
-    owner='on-duty dentist' if ticket.tenant=='harbor' and priority=='urgent' else 'support lead'
+    owner='on-duty dentist' if reason=='clinical_requires_dentist' else 'support lead'
     conn.execute('INSERT INTO cases(tenant,ticket_id,owner,severity,reason) VALUES (%s,%s,%s,%s,%s) ON CONFLICT (tenant,ticket_id) DO UPDATE SET reason=excluded.reason,severity=excluded.severity',
                  (ticket.tenant,ticket.id,owner,priority,reason))
 
@@ -151,6 +151,17 @@ def worker(cfg=None):
                     remaining+=conn.execute("SELECT count(*) AS n FROM jobs WHERE state IN ('ready','leased')").fetchone()['n']
             if not remaining: break
             time.sleep(1)
+
+def resume(tenant,ticket_id,actor,cfg=None):
+    """Explicit operator recovery; preserve previous usage and audit history."""
+    identifier=run_id(); new_run(identifier,cfg)
+    with session(tenant,cfg) as conn:
+        ticket=conn.execute('SELECT status FROM tickets WHERE tenant=%s AND id=%s FOR UPDATE',(tenant,ticket_id)).fetchone()
+        if not ticket or ticket['status'] not in ('queued','failed','held_budget'):
+            raise ValueError('only unfinished, failed or held tickets can be resumed')
+        conn.execute("UPDATE jobs SET state='ready',attempts=0,lease_token=NULL,lease_until=NULL,available_at=now(),run_id=%s WHERE tenant=%s AND ticket_id=%s",(identifier,tenant,ticket_id))
+        conn.execute("UPDATE tickets SET status='queued' WHERE tenant=%s AND id=%s",(tenant,ticket_id))
+        audit(conn,tenant,ticket_id,'operator_resume','explicit retry with preserved usage counters',actor)
 
 def export(cfg=None):
     decisions=[]; messages=[]

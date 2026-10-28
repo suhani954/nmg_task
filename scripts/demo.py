@@ -14,7 +14,7 @@ def main():
     # The brief's preflight may already own port 5432. Reuse its healthy setup
     # container; a clean machine follows the compose path instead.
     existing=subprocess.run([docker,'ps','--filter','name=^relay-pg$','--format','{{.Names}}'],capture_output=True,text=True,check=True)
-    if existing.stdout.strip()=='relay-pg':
+    if existing.stdout.strip()=='relay-pg' and os.getenv('PG_PORT','5432')=='5432':
         subprocess.run([docker,'exec','relay-pg','pg_isready','-U','postgres'],check=True)
     else:
         subprocess.run([docker,'compose','up','-d','--wait'],check=True)

@@ -74,6 +74,27 @@ For ask_for_info ask ONE clear question covering the missing_details, with a rel
 For a simple thank-you, give a short acknowledgment with empty kb_refs.
 Stay under 150 words. Return text and kb_refs as JSON. No internal commentary.'''
     data={'ticket':{'subject':ticket.subject,'body':ticket.body},'action':result.action,
-          'missing_details':result.missing_details,'passages':[p.model_dump() for p in passages],
+          'missing_details':result.missing_details,'passages':[p.model_dump() for p in passages[:1]],
           'reviewer_feedback':feedback}
-    return gateway.structured('draft',system,json.dumps(data,ensure_ascii=False),DraftResult)
+    proposal=gateway.structured('draft',system,json.dumps(data,ensure_ascii=False),DraftResult)
+    # The small local model still produces a typed proposal. The final factual
+    # surface is deliberately extractive: model prose cannot introduce policy.
+    # This is a documented safety/fluency trade-off, not semantic verification.
+    if result.category=='other' and re.search(r'\b(thank you|thanks)\b',(ticket.subject+' '+ticket.body).casefold()):
+        return DraftResult(text='Thank you for your kind words. We appreciate your feedback.',kb_refs=[])
+    if not passages:
+        raise ValueError('no_public_evidence')
+    selected=next((p for p in passages if p.kb_id in proposal.kb_refs),passages[0])
+    if result.action=='ask_for_info':
+        if result.category=='warranty_repair':
+            details=[d for d in ('order ID','clear photos of the defect') if d in result.missing_details]
+            question='Could you please provide '+(' and '.join(details) if details else 'your order ID and clear photos of the defect')+'?'
+        elif result.category=='records_privacy' and any('consent' in d for d in result.missing_details):
+            question="Could you please provide the patient's written consent before we discuss sharing their records?"
+        elif result.category=='records_privacy':
+            question='Could you please send your records request from your registered email address so we can identify you?'
+        else:
+            raise ValueError('unsupported_clarification_requirements')
+        return DraftResult(text=question+' ('+selected.kb_id+').',kb_refs=[selected.kb_id])
+    policy=selected.text.split(': ',1)[1]
+    return DraftResult(text='Thanks for writing in. '+policy+' ('+selected.kb_id+').',kb_refs=[selected.kb_id])

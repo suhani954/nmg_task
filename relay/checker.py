@@ -13,6 +13,9 @@ def check(ticket, draft, passages, articles, forbidden_articles=()):
     public={a['id']:a for a in articles if not a['internal']}
     retrieved={p.kb_id for p in passages}
     cited=set(draft.kb_refs)
+    acknowledgment=bool(re.search(r'\b(thank you|thanks)\b',(ticket.subject+' '+ticket.body).casefold()))
+    if not cited and not acknowledgment:
+        reasons.append('missing_citation')
     inline=set(re.findall(r'\b(?:NW|HD)-KB-\d+\b',text,re.I))
     if not text.strip(): reasons.append('empty_draft')
     if len(text.split())>150: reasons.append('word_limit')
