@@ -106,4 +106,20 @@ See docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/RUNBOOK.md, docs/LIMITATIONS.m
 
 ## Time and submission
 
-First commit: 2026-10-28 13:53:29 IST. Setup and model downloads occurred before it. Final elapsed time, tag and validation evidence are recorded in docs/VALIDATION.md. The candidate must make the required 3–5 minute recording and submit its link with the repository URL, tag SHA, start/end times and laptop specifications.
+| Item | Recorded value |
+|---|---|
+| Build start / first commit | 28 October 2026, 13:53:29 IST |
+| Final application commit | 28 October 2026, 16:06:05 IST |
+| Timed build duration | 2 hours 12 minutes 36 seconds |
+| Four-hour deadline | 28 October 2026, 17:53:29 IST |
+| Repository | https://github.com/suhani954/nmg_task |
+| Submission tag | `submission` |
+| Frozen application SHA | `423bfa6f9e50863453f751e64ca812a517ea2de2` |
+
+Setup and model downloads occurred before the first commit. The frozen application commit is within the four-hour window. Documentation-only updates on `main` after that commit do not change the submission tag; use the tag and SHA above for assessment.
+
+The exact final tag was subsequently verified from a new clone, virtual environment and empty database on 28 October 2026, from 16:14:27 to 16:26:02 IST. The complete demo took **694.627 seconds (11 minutes 35 seconds)** and processed all 24 tickets with no failed or budget-held tickets. Models and the Docker image were predownloaded, pip used its package cache, and no other worker or evaluation ran concurrently. This read-only verification created no new source commit or tag. Its separate report and raw timing files are saved locally under `tmp/final-cold-verification/`; that ignored folder is not part of the GitHub submission.
+
+Validation: **32 automated tests passed**, and GitHub Actions passed for the frozen submission SHA. The committed evaluation and its provenance are in [docs/EVAL.md](docs/EVAL.md); known gaps remain in [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
+
+To submit, record the required **3–5 minute screen recording** and reply to the invitation email with the repository URL, frozen submission SHA, start/end times, laptop specifications and the actual recording link. See [docs/SUBMISSION.md](docs/SUBMISSION.md) for demonstration commands. Do not describe the documented limitations as completed features.
