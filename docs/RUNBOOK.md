@@ -6,11 +6,11 @@ Start Ollama and check `ollama list`. Verify `OLLAMA_URL`, normally `http://loca
 
 ## Worker dies
 
-Restart `python -m relay worker`. An outstanding lease expires after LEASE_SECONDS (600 by default); another worker reclaims it. Stale workers cannot commit because their lease token no longer matches. Duplicate model computation can consume tokens, but cannot create a second outbox row. Do not shorten a live lease below the maximum possible ticket processing time.
+Restart `python -m relay worker`. An outstanding lease expires after LEASE_SECONDS (1200 by default); another worker reclaims it. Stale workers cannot commit because their lease token no longer matches. Duplicate model computation can consume tokens, but cannot create a second outbox row. Do not shorten a live lease below the maximum possible ticket processing time.
 
 ## Budget exhausted
 
-The decision is held_budget and no approval exists. Review actual usage and retained reservations from failed calls. Increasing environment variables alone does not modify a stored run's limit. An operator must create a new run and explicitly requeue held jobs with an audited database operation; automatic budget resume is not implemented. Never bypass approval to clear a queue.
+The decision is held_budget and no approval exists. Review actual usage and retained reservations from failed calls. Increasing environment variables alone does not modify a stored run's limit. Use `python -m relay resume --tenant northwind TICKET --by operator` to create a fresh run and requeue explicitly. This is audited and preserves previous ticket usage; raise TICKET_TOKEN_BUDGET if cumulative usage already exhausted it. There is no automatic budget resume. Never bypass approval to clear a queue.
 
 ## Database unavailable
 
@@ -27,3 +27,4 @@ Use `python -m relay reject --tenant northwind TICKET --by operator --reason "Ex
 ## Tenant and rejection diagnostics
 
 Unknown tenants and invalid inputs are counted in rejected_inputs with line number and a sanitized reason. The body is not copied into a default tenant. Do not troubleshoot by switching to superuser application credentials: that invalidates isolation.
+
