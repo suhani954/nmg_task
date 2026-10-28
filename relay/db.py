@@ -11,14 +11,14 @@ def session(tenant=None, cfg=None):
     cfg = cfg or Config()
     if tenant is not None and tenant not in TENANTS:
         raise ValueError('unknown tenant')
-    with psycopg.connect(cfg.database_url, row_factory=dict_row) as conn:
+    with psycopg.connect(cfg.database_url, row_factory=dict_row, connect_timeout=10) as conn:
         if tenant:
             conn.execute("SELECT set_config('app.tenant_id', %s, true)", (tenant,))
         yield conn
 
 def migrate(cfg=None):
     cfg = cfg or Config()
-    with psycopg.connect(cfg.admin_url) as conn:
+    with psycopg.connect(cfg.admin_url, connect_timeout=10) as conn:
         conn.execute(Path(__file__).with_name('schema.sql').read_text())
 
 def audit(conn, tenant, ticket_id, event, reason, actor='worker'):
