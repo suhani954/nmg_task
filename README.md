@@ -68,7 +68,7 @@ See docs/EVAL.md for the latest generated metrics, per-ticket differences and ev
 
 The latest visible-set report records 72/72 correct actions, 60/72 correct categories, injection recall 6/6, zero false positives over 66 benign observations, and stable actions for all 24 tickets. The pure coverage fallback was replayed over the three actual inference runs; raw pre-refinement files and replay changes are preserved. Category and priority mistakes remain in the per-ticket error table.
 
-The 11m 33s cold-clone benchmark predates this routing-only refinement; its exact tested commit is preserved in the benchmark summary. No dependencies or bootstrap path changed in the refinement. Additional semantic-review calls can add inference time; a full cold-clone timing was not repeated inside the 30-minute refinement window.
+The earlier 11m 33s benchmark predates the routing refinement. The final application was subsequently verified from a new clone, virtual environment and empty database in **694.627 seconds (11 minutes 35 seconds)**, processing all 24 tickets with no failed or budget-held tickets. Models and the Docker image were predownloaded, pip's package cache was available, and no other worker or evaluation ran concurrently. The later verification report is saved separately from the tagged repository.
 
 ## Requirement status
 
@@ -104,22 +104,8 @@ The 11m 33s cold-clone benchmark predates this routing-only refinement; its exac
 
 See docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/RUNBOOK.md, docs/LIMITATIONS.md and docs/AI_USAGE.md. The generated outputs must not be edited by hand. Golden labels are used only in evaluation.py.
 
-## Time and submission
+## Time spent
 
-| Item | Recorded value |
-|---|---|
-| Build start / first commit | 28 October 2026, 13:53:29 IST |
-| Final application commit | 28 October 2026, 16:06:05 IST |
-| Timed build duration | 2 hours 12 minutes 36 seconds |
-| Four-hour deadline | 28 October 2026, 17:53:29 IST |
-| Repository | https://github.com/suhani954/nmg_task |
-| Submission tag | `submission` |
-| Frozen application SHA | `423bfa6f9e50863453f751e64ca812a517ea2de2` |
+Timed implementation and validation through the final application commit took **2 hours 12 minutes 36 seconds**. Preflight setup and model downloads occurred before the first commit. A subsequent read-only cold-clone verification took **11 minutes 35 seconds**.
 
-Setup and model downloads occurred before the first commit. The frozen application commit is within the four-hour window. Documentation-only updates on `main` after that commit do not change the submission tag; use the tag and SHA above for assessment.
-
-The exact final tag was subsequently verified from a new clone, virtual environment and empty database on 28 October 2026, from 16:14:27 to 16:26:02 IST. The complete demo took **694.627 seconds (11 minutes 35 seconds)** and processed all 24 tickets with no failed or budget-held tickets. Models and the Docker image were predownloaded, pip used its package cache, and no other worker or evaluation ran concurrently. This read-only verification created no new source commit or tag. Its separate report and raw timing files are saved locally under `tmp/final-cold-verification/`; that ignored folder is not part of the GitHub submission.
-
-Validation: **32 automated tests passed**, and GitHub Actions passed for the frozen submission SHA. The committed evaluation and its provenance are in [docs/EVAL.md](docs/EVAL.md); known gaps remain in [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
-
-To submit, record the required **3–5 minute screen recording** and reply to the invitation email with the repository URL, frozen submission SHA, start/end times, laptop specifications and the actual recording link. See [docs/SUBMISSION.md](docs/SUBMISSION.md) for demonstration commands. Do not describe the documented limitations as completed features.
+**32 automated tests passed**, and GitHub Actions passed for the submitted application version. Evaluation results and known limitations are documented in [docs/EVAL.md](docs/EVAL.md) and [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
