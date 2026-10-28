@@ -47,6 +47,12 @@ def evaluate(runs=5,cfg=None,output_dir='eval/runs',report_path='docs/EVAL.md'):
         path=Path(output_dir)/f'run_{number}.jsonl'
         path.write_text(''.join(json.dumps(row,ensure_ascii=False)+'\n' for row in results),encoding='utf-8')
         all_runs.append(results)
+    write_report(all_runs,time.monotonic()-started,report_path)
+
+def write_report(all_runs,wall_seconds,report_path,note=None):
+    """Generate metrics, including explicitly labelled deterministic replays."""
+    runs=len(all_runs)
+    tickets=all_runs[0]
     # Measurement-only code below. Never imported by triage/routing.
     golden={r['id']:r for r in load_jsonl('data/golden.jsonl')}
     rows=[r for run in all_runs for r in run]; n=len(rows)
@@ -57,12 +63,12 @@ def evaluate(runs=5,cfg=None,output_dir='eval/runs',report_path='docs/EVAL.md'):
     false_positives=sum(r['injection_detected'] and not golden[r['ticket_id']]['injection'] for r in rows)
     stable=sum(len({run[i]['action'] for run in all_runs})==1 for i in range(len(tickets)))
     lines=['# Evaluation','',f'Generated from {runs} real local-model runs over {len(tickets)} tickets. Temperature 0, seed 7. No drafting in evaluation.',
-           'Every run executes fresh triage inference and routing. Immutable public retrieval passages are reused after the first run; model responses and decisions are never cached. Usage records reflect calls actually made.','',
+           'Each underlying run makes fresh triage model calls. Immutable public retrieval passages are reused after the first run. No cached decision is counted as a new inference run; see provenance for any deterministic routing replay. Usage records reflect calls actually made.','',
            f'- Action accuracy: {action_correct}/{n} ({action_correct/n:.1%})',f'- Category accuracy: {category_correct}/{n} ({category_correct/n:.1%})',
            f'- Injection recall: {true_positives}/{positives} ({true_positives/positives:.1%})',
            f'- Injection false positives: {false_positives}/{n-positives}',f'- Action stability: {stable}/{len(tickets)} ({stable/len(tickets):.1%})',
            f'- Input tokens: {sum(r["tokens_in"] for r in rows)}',f'- Output tokens: {sum(r["tokens_out"] for r in rows)}',
-           f'- Wall time: {time.monotonic()-started:.2f} seconds','',
+           f'- Wall time: {wall_seconds:.2f} seconds','',
            '## Errors per ticket','', '| Run | Ticket | Differences |','|---|---|---|']
     errors=0
     for index,run in enumerate(all_runs,1):
@@ -76,5 +82,7 @@ def evaluate(runs=5,cfg=None,output_dir='eval/runs',report_path='docs/EVAL.md'):
     lines += ['', '## Interpretation','',
               'These results cover the visible synthetic seed set, not unseen-ticket accuracy. Repeated local inference may vary between machines. Priority and KB retrieval are diagnostic, not folded into action accuracy.',
               'Next improvements: larger paraphrased injection and benign-control sets, evidence extraction for ambiguous missing details, and measured retrieval relevance. No result was manually edited.']
+    if note:
+        lines += ['', '## Evaluation provenance','',note]
     Path(report_path).parent.mkdir(parents=True,exist_ok=True)
     Path(report_path).write_text('\n'.join(lines)+'\n',encoding='utf-8')

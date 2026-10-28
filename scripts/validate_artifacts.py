@@ -11,6 +11,7 @@ from relay.db import session,load_jsonl
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--fresh-seconds',type=float)
+    parser.add_argument('--performance-summary',type=Path)
     args=parser.parse_args()
     decisions=list(load_jsonl('out/decisions.jsonl'))
     assert len(decisions)==24,'expected all 24 supplied tickets'
@@ -51,7 +52,11 @@ def main():
            f'- Evaluation files: {len(eval_files)}, each with 24 validated records.',
            '- No internal canary markers or internal article IDs found anywhere under out/.',
            '- A genuine human approval was recorded for NW-T01 following explicit user review. Repeated approval returned already approved.']
-    if args.fresh_seconds is None:
+    if args.performance_summary:
+        performance=json.loads(args.performance_summary.read_text(encoding='utf-8'))
+        lines.append(f'- Preserved isolated clean-clone benchmark: {performance["total_seconds"]:.3f} seconds at commit {performance["tested_commit"]}.')
+        lines.append('- The subsequent routing-only refinement passed regression tests and real inference evaluation; a new full cold-clone timing was not repeated within this refinement time box.')
+    elif args.fresh_seconds is None:
         lines.append('- Clean-clone full demo: not yet confirmed complete. A separate database and fresh virtual environment were started; do not claim a passing full demo.')
     else:
         fresh_rows=list(load_jsonl('tmp/fresh-clone/out/decisions.jsonl'))

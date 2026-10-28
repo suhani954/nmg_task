@@ -20,8 +20,9 @@ def main():
                 conn.execute("UPDATE approvals SET state='superseded' WHERE tenant=%s AND ticket_id=%s AND state='pending'",(tenant,identity))
                 conn.execute("UPDATE tickets SET status='failed',revision=revision+1 WHERE tenant=%s AND id=%s",(tenant,identity))
                 reason='routing policy revalidation' if args.routing_only else 'grounded renderer replaces unsupported model prose'
-                audit(conn,tenant,identity,'draft_superseded',reason,'automated-quality-review')
+                event='routing_revalidation' if args.routing_only else 'draft_superseded'
+                audit(conn,tenant,identity,event,reason,'automated-quality-review')
                 work.append((tenant,identity))
-    print('Superseded',len(work),'drafts. Run scripts.resume_unfinished next. Previous history retained.')
+    print('Marked',len(work),'tickets for revalidation. Run scripts.resume_unfinished next. Previous history retained.')
 
 if __name__=='__main__': main()

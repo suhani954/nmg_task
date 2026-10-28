@@ -14,6 +14,16 @@ def test_unsupported_request_escalates_despite_high_vector_similarity():
     result=route(ticket('Can our team arrange wholesale purchasing terms?'),proposal(),PASSAGES)
     assert result.action=='escalate'
 
+def test_direct_public_coverage_can_answer_misclassified_other():
+    passages=[Passage(kb_id='TEST-HOURS',text='Hours: Open Monday to Saturday. Closed on Sundays.',score=.9)]
+    result=route(ticket('Are you open on Sunday?','harbor'),proposal(),passages)
+    assert result.action=='draft_reply'
+
+def test_coverage_does_not_clear_urgent_safety_escalation():
+    p=proposal(); p.priority='urgent'; p.action='escalate'
+    result=route(ticket('Are you open on Sunday?','harbor'),p,[Passage(kb_id='TEST-HOURS',text='Open Sunday.',score=.9)])
+    assert result.action=='escalate'
+
 def test_plain_thanks_can_override_spurious_clinical_classification():
     p=proposal(); p.category='clinical'; p.action='escalate'
     result=route(ticket('Your reception team were wonderful. Thank you.', 'harbor'),p,PASSAGES)

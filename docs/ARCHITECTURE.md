@@ -23,6 +23,10 @@ flowchart LR
 
 Structured calls use Ollama's JSON schema interface. Invalid output gets one schema repair request without echoing the malformed response. A second invalid response becomes `invalid_model_output`. Provider failures use bounded durable retries instead.
 
+Ambiguous injection flags receive a second typed semantic review using ticket text only. Legal complaints and clinical questions still escalate when required, but are not automatically considered attacks. Direct injection patterns cannot be cleared by this review. An unsupported request categorized as `other` escalates even if vector similarity is high. A narrowly recognized acknowledgment may receive a fixed thank-you reply, after injection checks and with action/clinical terms excluded.
+
+Repeated evaluation runs reuse immutable public retrieval passages keyed by tenant and exact ticket text. Every run still performs fresh triage inference, any required injection review, and routing. No model answer or decision is cached. This measures triage/routing stability, not repeated embedding variability; recorded usage counts only calls actually made.
+
 ## Data model and transaction boundaries
 
 `kb` holds vector(768) embeddings and public/internal flags. `tickets` stores validated input and workflow state. `jobs` holds attempts, lease token, expiry and next retry time. `decisions` holds one current decision snapshot per tenant/ticket. `approvals` stores versioned reviewable drafts. `outbox` has both a composite primary key and unique idempotency key. `cases` records owner, severity and classified reason. `audit` records actor, time, event and reason. `model_calls` stores usage and latency without prompts or response bodies. `runs` stores shared budget reservations. Invalid inputs receive a sanitized `rejected_inputs` record without their body or unknown tenant value.
